@@ -1,3 +1,36 @@
+/*******************************************************************************
+* soil-watcher:
+*
+*    For green-thumb enthusiasts, this program will run forever, checking soil
+*    moisture content every so often.  If the moisture content is low, an red LED
+*    will be turned on.  If the moisture content is okay, the red LED will be 
+*    turned off.  The gardener will see a red LED and know the plant needs water.
+*
+*    This was developed on a TS-7250-V2.  Connections are as follows:
+*        - Red LED:              DIO_03, GPIO #77
+*        - Power Output:         DIO_01, GPIO #76
+*        - Soil Moisture Sensor: A/D_01, ADC #0
+*
+*    The soil moisture sensor acts as a variable resistor and at 3.3 VDC, it
+*    will read between 0 mV (dry) and 2500 mV (soaked).  When sticking it into 
+*    plant soil, it seemed a reasonable threshold level was around 900 mV.
+*
+*    Reading the ADC values on the A/D header is done using `tshwctl --adc`.
+*    Controlling the DIO outputs is done using the EVGPIO core (evgpio.c).
+*
+*    Compile using the `make` command (recommended), or manually using:
+*        gcc -o soil-watcher soil-watcher.c evgpio.c  -mcpu=arm9
+*
+*    This program can be ran normally, with output to console, simply running:
+*        ./soil-watcher
+*
+*    Or, it can be daemonized using the -d option, like so:
+*        ./soil-watcher -d
+*
+*    For running this application on startup, check out instructions given here:
+*        https://wiki.embeddedarm.com/wiki/TS-7250-V2#Starting_Automatically
+* 
+*******************************************************************************/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -9,14 +42,14 @@
 #define LED 77
 #define LVL 900
 
-
 void usage() {
     printf("Usage: soil-watcher [d]\n");
     printf("    -d Daemonize the program\n\n");
 }
 
 /*******************************************************************************
-* 
+* Runs system command `tshwctl --adc`, loops through the output, and extracts
+* the ADC value from adc0 in mV.  Returns ADC value.
 *******************************************************************************/
 int getadc() {
 
@@ -52,7 +85,8 @@ int getadc() {
 }
 
 /*******************************************************************************
-* 
+* Setup the system by initializing EVGPIO core and turn off power and red LED.
+* This is run only once.
 *******************************************************************************/
 void setup() {
     printf("Setting things up...\n");
@@ -74,7 +108,9 @@ void setup() {
 }
 
 /*******************************************************************************
-* 
+* Run the program in a forever loop in 10 second intervals, turning on the power
+* to the moisture sensor, reading in the ADC value, and either turning the red
+* LED on or off, depending on moisture content in mV.
 *******************************************************************************/
 void run() {
     printf("Running application...\n");
@@ -110,19 +146,19 @@ void run() {
         // Turn off power to sensor to prevent oxidation of the probes
         evsetdata(PWR, 0);
 
-        // Wait another 5 seconds before checking moisture again.
-        sleep(5);
+        // Wait another 10 seconds before checking moisture again.
+        sleep(10);
     }
 }
 
 /*******************************************************************************
-* 
+* Main.  Where it all begins.  Parses command line arguments, runs setup() and
+* then run().
 *******************************************************************************/
 int main(int argc, char *argv[])
 {
     int dflag = 0;
     int c;
-    //opterr = 0;
 
     while ((c = getopt (argc, argv, "d")) != -1) {
         switch (c) {
