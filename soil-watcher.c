@@ -117,22 +117,31 @@ void run() {
 
     while(1) {
 
+        int adcValue;
+ 
         // Turn on power to the sensor
         evsetdata(PWR, 1);
 
         // Read in the sensor data 
-        int adcValue = getadc();
+        adcValue = getadc();
 
-        if (adcValue <= 0) {
-            printf("Ack! There was either a problem reading sensor data or \
-                things are bone dry (ADC Value: %d mV)!  Flashing the LED.\n",
+        if (adcValue <= 10) {
+
+            printf("Ack! There was either a problem reading sensor data or things are bone dry (ADC Value: %d mV)!  Flashing the LED.\n",
                 adcValue);
-           
-            // Flash the LED to indicate there was a problem.
-            evsetdata(LED, 1);
-            sleep(1);
-            evsetdata(LED, 0);
-            sleep(1);
+
+            // Flash the LED to indicate there was a problem or bone dry.
+            // There are better ways to do this, but for now, this works.
+            while(getadc() <= 10) {
+                evsetdata(PWR, 0);
+
+                evsetdata(LED, 1);
+                usleep(100000);
+                evsetdata(LED, 0);
+                usleep(100000);
+
+                evsetdata(PWR, 1);
+            }
         }
         else if (adcValue > 0 && adcValue <= LVL) {
             printf("Moisture content is LOW (ADC Value: %d mV)!  Turning the LED on.\n", adcValue);
