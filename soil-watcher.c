@@ -38,10 +38,13 @@
 #include <getopt.h>
 #include "evgpio.h"
 
-#define PWR 76
-#define LED 77
-#define LVL 900
+#define PWR 76  // GPIO pin for power enable to moisture sensor (vcc)
+#define LED 77  // GPIO pin for indicator LED
+#define LVL 900 // Threshold level for moisture before water is needed
 
+/*******************************************************************************
+* Simply prints out the usage of the program.  Only one option, deamonize (-d).
+*******************************************************************************/
 void usage() {
     printf("Usage: soil-watcher [d]\n");
     printf("    -d Daemonize the program\n\n");
