@@ -3,7 +3,7 @@
 # To install:
 # cp soil-watcher.sh /etc/init.d/soil-watcher
 #
-# Program comes from https://github.com/embeddedarm/soil-watcher
+# Program comes from https://github.com/embeddedTS/soil-watcher
 #
 # Remember to `make install` to copy binary to /usr/local/bin.
 # Also remember to make this /etc/init.d/soil-watcher executable (chmod +x)

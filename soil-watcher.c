@@ -28,7 +28,7 @@
 *        ./soil-watcher -d
 *
 *    For running this application on startup, check out instructions given here:
-*        https://wiki.embeddedarm.com/wiki/TS-7250-V2#Starting_Automatically
+*        https://wiki.embeddedTS.com/wiki/TS-7250-V2#Starting_Automatically
 * 
 *******************************************************************************/
 #include <stdio.h>
